@@ -14,6 +14,38 @@ def get_html(url, params=None):
     return r
 
 
+def post_html(url, find, token):
+    payload = {
+        'action': 'postfilter',
+        'kind': '5',
+        'pf_category': '',
+        'pf_subcategory': '',
+        'comboe_columns%5B1%5D': '0',
+        'comboe_columns%5B0%5D': '0',
+        'comboe_column_id': '0',
+        'comboe_db_id': '0',
+        'comboe': '%D0%92%D1%81%D0%B5+%D1%81%D0%BF%D0%B5%D1%86%D0%B8%D0%B0%D0%BB%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D0%B8',
+        'location_columns%5B1%5D': '0',
+        'location_columns%5B0%5D': '0',
+        'location_column_id': '0',
+        'location_db_id': '0',
+        'location': '%D0%92%D1%81%D0%B5+%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%8B',
+        'pf_cost_from': '',
+        'pf_cost_to': '',
+        'pf_keywords': find,
+        'u_token_key': token
+       }
+    r = requests.post(url, headers=HEADERS, data=payload)
+    return r
+
+
+def get_token(url, token_count=34):
+    for el in get_html(url):
+        if 'U_TOKEN_KEY' in str(el):
+            end = str(el).find(';')
+            return str(el)[end - token_count: end]
+
+
 def get_pages_count():
     return 1
 
@@ -26,11 +58,13 @@ def find_price(html):
     if start != end:
         count += html[end - 3: end]
 
-    if 'euro' in html:
+    html_end = html[end:]
+
+    if 'euro' in html_end:
         currency = 'EUR'
-    elif '$' in html:
+    elif '$' in html_end:
         currency = 'USD'
-    elif '₽' in html:
+    elif '₽' in html_end:
         currency = 'RUB'
     else:
         count = None
