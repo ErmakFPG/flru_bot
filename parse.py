@@ -95,9 +95,9 @@ def save_file(items, path):
             writer.writerow([item['title'], item['link'], item['price']['count'], item['price']['currency']])
 
 
-def parse():
+def parse(find):
     s = requests.Session()
-    post_html(URL, s, 'python', get_token(URL, s))
+    post_html(URL, s, find, get_token(URL, s))
     tasks = []
     pages_count = get_pages_count()
     for page in range(pages_count):
@@ -105,6 +105,3 @@ def parse():
         tasks.extend(get_content(html.text))
     save_file(tasks, FILE)
     print('All done')
-
-
-parse()
