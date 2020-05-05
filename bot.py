@@ -24,25 +24,25 @@ except FileNotFoundError:
 
 @bot.message_handler(content_types=['text'])
 def dialog(message):
-    user_id = message.from_user.id
+    user_id = str(message.from_user.id)
     message_id = message.chat.id
     # user_options = options.get(user_id)
 
-    if options.get(user_id) and options.get(user_id).get('status') == 'pending':
-        options[user_id]['status'] = 'tuned'
-        options[user_id]['current_keyword'] = message.text
-        bot.send_message(message_id, 'Кручу-верчу, пропарсить хочу')
-        pprint(options)
-
-    elif message.text == 'parse':
-
-        if options.get(user_id):
+    if message.text == 'parse':
+        if options.get(user_id):  # if user is old
             options[user_id]['status'] = 'pending'
-            options[user_id]['chat_id'] = message_id
+            print('old')
         else:
             options[user_id] = {'status': 'pending', 'chat_id': message_id}
+            print('new')
 
         bot.send_message(message_id, 'Введите ключевое слово')
+        pprint(options)
+
+    elif options.get(user_id) and options[user_id]['status'] == 'pending':
+        options[user_id]['current_keyword'] = message.text
+        options[user_id]['status'] = 'turned'
+        js_write(options)
         pprint(options)
 
     elif message.text == 'dump':
