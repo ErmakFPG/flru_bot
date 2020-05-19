@@ -24,16 +24,13 @@ def run_bot():  # запускает обработчик сообщений
                 options[user_id] = {'status': 'pending', 'history': {}}
 
             bot.send_message(user_id, 'Введите ключевое слово')
+            tools.js_write(options)
             pprint(options)
 
         elif options.get(user_id) and options[user_id]['status'] == 'pending':
             options[user_id]['current_keyword'] = message.text
             options[user_id]['status'] = 'turned'
             tools.js_write(options)
-            pprint(options)
-
-        elif message.text == 'dump':
-            tools.js_read()
             pprint(options)
 
         else:
@@ -46,4 +43,5 @@ def run_bot():  # запускает обработчик сообщений
 def send_tasks(user_id, tasks, options, keyword):  # отправляет результат парсинга
     for task in tasks[0:3]:  # для удобства тестирования отправляет 3 сообщения [0:3]
         # if task['id'] > options[user_id]['history'][keyword]:
-        bot.send_message(user_id, task['title'] + ' ' + task['link'] + ' ' + task['price']['count'])
+        bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
+                                  f"{task['price']['currency']}")
