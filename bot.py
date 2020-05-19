@@ -2,19 +2,21 @@ import telebot
 import config
 import tools
 from pprint import pprint
+import time
 
 bot = telebot.TeleBot(config.TOKEN)
 
 
 def run_bot():  # запускает обработчик сообщений
 
-    try:
-        options = tools.js_read()
-    except FileNotFoundError:
-        options = {}
-
     @bot.message_handler(content_types=['text'])
     def dialog(message):
+
+        try:
+            options = tools.js_read()
+        except FileNotFoundError:
+            options = {}
+
         user_id = str(message.from_user.id)
 
         if message.text == 'parse':
@@ -42,6 +44,8 @@ def run_bot():  # запускает обработчик сообщений
 
 def send_tasks(user_id, tasks, options, keyword):  # отправляет результат парсинга
     for task in tasks[0:3]:  # для удобства тестирования отправляет 3 сообщения [0:3]
-        # if task['id'] > options[user_id]['history'][keyword]:
-        bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
-                                  f"{task['price']['currency']}")
+        if task['id'] > options[user_id]['history'][keyword]:
+            bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
+                                      f"{task['price']['currency']}")
+
+        time.sleep(1)
