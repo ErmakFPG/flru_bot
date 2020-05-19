@@ -1,12 +1,10 @@
 import requests
 from bs4 import BeautifulSoup as Bs
-import csv
 
 URL = 'https://www.fl.ru/projects/'
 HEADERS = {'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
            'accept': '*/*'}
 HOST = 'https://www.fl.ru'
-FILE = 'Tasks.csv'
 
 
 def get_html(url, session, params=None):
@@ -35,8 +33,7 @@ def post_html(url, session, find, token):
         'pf_keywords': find,
         'u_token_key': token
        }
-    r = session.post(url, headers=HEADERS, data=payload)
-    return r
+    session.post(url, headers=HEADERS, data=payload)
 
 
 def get_token(url, session, token_count=34):
@@ -82,17 +79,10 @@ def get_content(html):
         tasks.append({
             'title': item.find('a', class_='b-post__link').get_text(),
             'link': HOST + item.find('a', class_='b-post__link').get('href'),
-            'price': find_price(str(item.find('script')))
+            'price': find_price(str(item.find('script'))),
+            'id': int(item.find('a', class_='b-post__link').get('name')[3:])
         })
     return tasks
-
-
-def save_file(items, path):
-    with open(path, 'w', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow(['Title', 'Link', 'Count', 'Currency'])
-        for item in items:
-            writer.writerow([item['title'], item['link'], item['price']['count'], item['price']['currency']])
 
 
 def parse(find):
@@ -103,5 +93,4 @@ def parse(find):
     for page in range(pages_count):
         html = get_html(URL, s, params={'page': page + 1})
         tasks.extend(get_content(html.text))
-    save_file(tasks, FILE)
-    print('All done')
+    return tasks

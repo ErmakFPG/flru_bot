@@ -2,16 +2,8 @@ import telebot
 import config
 import tools
 from pprint import pprint
-import time
 
 bot = telebot.TeleBot(config.TOKEN)
-
-
-def send_tasks(user_id, tasks):  # отправляет результат парсинга
-    # options = tools.js_read()
-    for task in tasks:
-        bot.send_message(user_id, task['title'] + ' ' + task['link'])
-        time.sleep(1)
 
 
 def run_bot():  # запускает обработчик сообщений
@@ -26,7 +18,7 @@ def run_bot():  # запускает обработчик сообщений
         user_id = str(message.from_user.id)
 
         if message.text == 'parse':
-            if options.get(user_id):  # if user is old
+            if options.get(user_id):  # если пользователь уже существует
                 options[user_id]['status'] = 'pending'
             else:
                 options[user_id] = {'status': 'pending', 'history': {}}
@@ -41,12 +33,17 @@ def run_bot():  # запускает обработчик сообщений
             pprint(options)
 
         elif message.text == 'dump':
+            tools.js_read()
             pprint(options)
-            bot.send_message(user_id, 'Изи дамп')
 
         else:
-            bot.send_message(user_id, 'Не понимаю :(')
+            bot.send_message(user_id, 'Используйте команду "parse" для активации бота')
             pprint(options)
 
-    # RUN
     bot.polling(none_stop=False)
+
+
+def send_tasks(user_id, tasks, options, keyword):  # отправляет результат парсинга
+    for task in tasks[0:3]:  # для удобства тестирования отправляет 3 сообщения [0:3]
+        # if task['id'] > options[user_id]['history'][keyword]:
+        bot.send_message(user_id, task['title'] + ' ' + task['link'] + ' ' + task['price']['count'])
