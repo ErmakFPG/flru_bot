@@ -19,8 +19,14 @@ def run_bot():  # запускает обработчик сообщений
 
         user_id = str(message.from_user.id)
 
-        if message.text == 'parse':
-            if options.get(user_id):  # если пользователь уже существует
+        if message.text == 'get' and options.get(user_id):
+            bot.send_message(user_id, f"`{str(options[user_id])}`", parse_mode='Markdown')
+
+        elif message.text == 'get' and not options.get(user_id):
+            bot.send_message(user_id, 'Настройки пользователя отсутствуют')
+
+        elif message.text == 'parse':
+            if options.get(user_id):
                 options[user_id]['status'] = 'pending'
             else:
                 options[user_id] = {'status': 'pending', 'history': {}}
@@ -31,11 +37,11 @@ def run_bot():  # запускает обработчик сообщений
 
         elif options.get(user_id) and options[user_id]['status'] == 'pending':
             options[user_id]['current_keyword'] = message.text
-            options[user_id]['status'] = 'turned'
+            options[user_id]['status'] = 'ready'
             tools.js_write(options)
             pprint(options)
 
-        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'turned':
+        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
             options[user_id]['status'] = 'stopped'
             tools.js_write(options)
             pprint(options)

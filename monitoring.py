@@ -8,7 +8,7 @@ def parse_for_current_settings(options):
 
     for user_id, setting in options.items():
 
-        if setting['status'] == 'turned':
+        if setting['status'] == 'ready':
 
             keyword = setting['current_keyword']
             tasks = parse(keyword)
