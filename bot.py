@@ -35,8 +35,13 @@ def run_bot():  # запускает обработчик сообщений
             tools.js_write(options)
             pprint(options)
 
+        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'turned':
+            options[user_id]['status'] = 'stopped'
+            tools.js_write(options)
+            pprint(options)
+
         else:
-            bot.send_message(user_id, 'Используйте команду "parse" для активации бота')
+            bot.send_message(user_id, 'Используйте команды:\n"parse" - активация бота\n"stop" - остановка бота')
             pprint(options)
 
     bot.polling(none_stop=False)
