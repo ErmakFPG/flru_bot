@@ -54,8 +54,9 @@ def run_bot():  # запускает обработчик сообщений
         elif message.text == 'stop' and not options.get(user_id):
             bot.send_message(user_id, 'Парсинг не запущен')
 
-        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
+        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] in ['ready', 'stopped']:
             options[user_id]['status'] = 'stopped'
+            bot.send_message(user_id, 'Парсинг остановлен')
             tools.js_write(options)
 
         # ------------------------ OTHER COMMANDS ------------------------
