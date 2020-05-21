@@ -26,9 +26,9 @@ def parse_for_current_settings(options):
                 if int(task['id']) > last_task_id:
                     last_task_id = int(task['id'])
 
+            options = tools.js_read()
             options[user_id]['history'][keyword] = last_task_id
-
-    tools.js_write(options)
+            tools.js_write(options)
 
 
 def start_monitoring():
