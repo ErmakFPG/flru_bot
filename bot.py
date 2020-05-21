@@ -57,11 +57,11 @@ def run_bot():  # запускает обработчик сообщений
             tools.js_write(options)
 
         # ------------------------ GET COMMAND ------------------------
-        # elif message.text == 'get' and options.get(user_id):
-        #     bot.send_message(user_id, f"`{str(options[user_id])}`", parse_mode='Markdown')
-        #
-        # elif message.text == 'get' and not options.get(user_id):
-        #     bot.send_message(user_id, 'Настройки пользователя отсутствуют')
+        elif message.text == 'get' and options.get(user_id):
+            bot.send_message(user_id, f"`{str(options[user_id])}`", parse_mode='Markdown')
+
+        elif message.text == 'get' and not options.get(user_id):
+            bot.send_message(user_id, 'Настройки пользователя отсутствуют')
 
         # ------------------------ OTHER COMMANDS ------------------------
         elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
