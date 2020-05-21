@@ -64,9 +64,9 @@ def run_bot():  # запускает обработчик сообщений
         #     bot.send_message(user_id, 'Настройки пользователя отсутствуют')
 
         # ------------------------ OTHER COMMANDS ------------------------
-        # elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
-        #     options[user_id]['status'] = 'stopped'
-        #     tools.js_write(options)
+        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
+            options[user_id]['status'] = 'stopped'
+            tools.js_write(options)
 
         else:
             bot.send_message(user_id, 'Используйте команды:\n"parse" - активация бота\n"stop" - остановка бота')
