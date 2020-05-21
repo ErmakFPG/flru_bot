@@ -20,29 +20,16 @@ def run_bot():  # запускает обработчик сообщений
         user_id = str(message.from_user.id)
 
         # ------------------------ CLEAR COMMAND ------------------------
-        # if message.text == 'clear' and not options.get(user_id):
-        #     bot.send_message(user_id, 'Настройки пользователя отсутствуют')
-        #
-        # elif message.text == 'clear' and options.get(user_id):  # and options['status'] != 'pending':
-        #     options[user_id]['clear'] = True
-        #     tools.js_write(options)
-        #     bot.send_message(user_id, 'Вы уверены, молодой человек? Введите \'yes\' или \'no\'')
-        #
-        # elif options.get(user_id) and options[user_id]['clear']:  # and options['status'] != 'pending':
-        #
-        #     if message.text == 'yes':
-        #         options.pop(user_id)
-        #         tools.js_write(options)
-        #         bot.send_message(user_id, 'История удалена')
-        #     elif message.text == 'no':
-        #         options[user_id]['clear'] = False
-        #         tools.js_write(options)
-        #         bot.send_message(user_id, 'Запрос на удаление истории отменен')
-        #     else:
-        #         bot.send_message(user_id, 'Введите \'yes\' или \'no\'')
+        if message.text == 'clear' and not options.get(user_id):
+            bot.send_message(user_id, 'История отсутствует')
+
+        elif message.text == 'clear' and options.get(user_id) and options[user_id]['status'] != 'pending':
+            options.pop(user_id)
+            tools.js_write(options)
+            bot.send_message(user_id, 'История удалена')
 
         # ------------------------ PARSE COMMAND ------------------------
-        if message.text == 'parse':
+        elif message.text == 'parse':
             if options.get(user_id):
                 options[user_id]['status'] = 'pending'
             else:
@@ -63,13 +50,21 @@ def run_bot():  # запускает обработчик сообщений
         elif message.text == 'get' and not options.get(user_id):
             bot.send_message(user_id, 'Настройки пользователя отсутствуют')
 
-        # ------------------------ OTHER COMMANDS ------------------------
+        # ------------------------ STOP COMMAND ------------------------
+        elif message.text == 'stop' and not options.get(user_id):
+            bot.send_message(user_id, 'Парсинг не запущен')
+
         elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
             options[user_id]['status'] = 'stopped'
             tools.js_write(options)
 
+        # ------------------------ OTHER COMMANDS ------------------------
+        elif message.text == 'help':
+            bot.send_message(user_id, 'Команды:\n"parse" - активация бота\n"stop" - остановка бота'
+                                      '\n"get" - показать настройки пользователя\n"clear" - очистить историю')
+
         else:
-            bot.send_message(user_id, 'Используйте команды:\n"parse" - активация бота\n"stop" - остановка бота')
+            bot.send_message(user_id, 'Неверная команда, используйте "help" для просмотра списка команд')
 
         pprint(options)
 
