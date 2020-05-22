@@ -1,3 +1,4 @@
+import monitoring
 import telebot
 import config
 import tools
@@ -33,6 +34,7 @@ def run_bot():  # запускает обработчик сообщений
             options[user_id]['current_keyword'] = message.text
             options[user_id]['status'] = 'ready'
             tools.js_write(options)
+            monitoring.parse_for_current_settings(options)  # для оперативного получения инфромации при первом вызове
 
         # ------------------------ GET COMMAND ------------------------
         elif message.text == 'get' and options.get(user_id):

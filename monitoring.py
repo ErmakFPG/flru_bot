@@ -38,4 +38,4 @@ def start_monitoring():
         except FileNotFoundError:
             pass
 
-        time.sleep(10)
+        time.sleep(600)
