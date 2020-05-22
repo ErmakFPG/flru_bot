@@ -39,6 +39,3 @@ def start_monitoring():
             pass
 
         time.sleep(10)
-
-
-start_monitoring()
