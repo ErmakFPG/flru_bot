@@ -92,10 +92,9 @@ def run_bot():  # запускает обработчик сообщений
     bot.polling(none_stop=False)
 
 
-def send_tasks(user_id, tasks, options, keyword):  # отправляет результат парсинга
+def send_tasks(user_id, tasks):  # отправляет результат парсинга
     for task in tasks[0:3]:  # для удобства тестирования отправляет 3 сообщения [0:3]
-        if task['id'] > options[user_id]['history'][keyword]:
-            bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
-                                      f"{task['price']['currency']}")
+        bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
+                                  f"{task['price']['currency']}")
 
         time.sleep(1)

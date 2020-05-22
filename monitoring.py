@@ -5,29 +5,28 @@ import bot
 
 
 def parse_for_current_settings(options):
-
     for user_id, setting in options.items():
-
         if setting['status'] == 'ready':
-
             keyword = setting['current_keyword']
-            tasks = parse(keyword)
 
-            if not setting['history'].get(keyword):
-                last_task_id = 0
-                options[user_id]['history'][keyword] = 0
-
-            else:
+            if setting['history'].get(keyword):
                 last_task_id = int(setting['history'][keyword])
+            else:
+                last_task_id = 0
 
-            bot.send_tasks(user_id, tasks, options, keyword)
+            tasks = parse(keyword)
+            tasks_for_send = []
+            new_last_task_id = last_task_id
 
             for task in tasks:
-                if int(task['id']) > last_task_id:
-                    last_task_id = int(task['id'])
+                if task['id'] > last_task_id:
+                    tasks_for_send.append(task)
+                if task['id'] > new_last_task_id:
+                    new_last_task_id = task['id']
 
+            bot.send_tasks(user_id, tasks_for_send)
             options = tools.js_read()
-            options[user_id]['history'][keyword] = last_task_id
+            options[user_id]['history'][keyword] = new_last_task_id
             tools.js_write(options)
 
 
