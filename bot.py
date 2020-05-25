@@ -4,6 +4,11 @@ import config
 import tools
 from pprint import pprint
 import time
+from telebot import apihelper
+
+
+apihelper.proxy = {'http': 'http://198.255.114.82:3128',
+                   'https': 'http://198.255.114.82:3128'}
 
 bot = telebot.TeleBot(config.TOKEN)
 
