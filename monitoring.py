@@ -5,29 +5,24 @@ import bot
 
 
 def parse_for_current_settings(options):
-    for user_id, setting in options.items():
-        if setting['status'] == 'ready':
-            keyword = setting['current_keyword']
+    for user_id, keywords in options.items():
+        for keyword, setting in keywords.items():
+            if setting['status'] == 'active':
 
-            if setting['history'].get(keyword):
-                last_task_id = int(setting['history'][keyword])
-            else:
-                last_task_id = 0
+                tasks = parse(keyword)
+                tasks_for_send = []
+                new_last_task_id = setting['last_task_id']
 
-            tasks = parse(keyword)
-            tasks_for_send = []
-            new_last_task_id = last_task_id
+                for task in tasks:
+                    if task['id'] > setting['last_task_id']:
+                        tasks_for_send.append(task)
+                    if task['id'] > new_last_task_id:
+                        new_last_task_id = task['id']
 
-            for task in tasks:
-                if task['id'] > last_task_id:
-                    tasks_for_send.append(task)
-                if task['id'] > new_last_task_id:
-                    new_last_task_id = task['id']
-
-            bot.send_tasks(user_id, tasks_for_send)
-            options = tools.js_read()
-            options[user_id]['history'][keyword] = new_last_task_id
-            tools.js_write(options)
+                bot.send_tasks(user_id, tasks_for_send)
+                options = tools.js_read()
+                options[user_id][keyword]['last_task_id'] = new_last_task_id
+                tools.js_write(options)
 
 
 def start_monitoring():
@@ -38,4 +33,4 @@ def start_monitoring():
         except FileNotFoundError:
             pass
 
-        time.sleep(600)
+        time.sleep(10)

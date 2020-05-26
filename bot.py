@@ -4,11 +4,10 @@ import config
 import tools
 from pprint import pprint
 import time
-from telebot import apihelper
+# from telebot import apihelper
 
 
-apihelper.proxy = {'http': 'http://198.255.114.82:3128',
-                   'https': 'http://198.255.114.82:3128'}
+# apihelper.proxy = {'http': 'http://178.128.118.217:443'}
 
 bot = telebot.TeleBot(config.TOKEN)
 
@@ -24,22 +23,55 @@ def run_bot():  # запускает обработчик сообщений
             options = {}
 
         user_id = str(message.from_user.id)
+        first_word = message.text.split()[0]
 
-        # ------------------------ PARSE COMMAND ------------------------
-        if message.text == 'parse':
-            if options.get(user_id):
-                options[user_id]['status'] = 'pending'
+        try:
+            second_word = message.text.split()[1]
+        except IndexError:
+            second_word = ''
+
+        # ------------------------ START COMMANDS ------------------------
+        if first_word == 'start':
+
+            if message.text == 'start':
+                if not options.get(user_id):
+                    bot.send_message(user_id, 'В истории нет ключевых слов для поиска')
+                else:
+                    for keyword in options[user_id]:
+                        options[user_id][keyword]['status'] = 'active'
+                    bot.send_message(user_id, 'Активирован поиск по ключевым словам из истории')
+
+            elif not options.get(user_id):
+                options[user_id] = {second_word: {'last_task_id': 0, 'status': 'active'}}
+                bot.send_message(user_id, 'Активирован поиск по ключевому слову')
+
+            elif options.get(user_id) and second_word not in options[user_id].keys():
+                options[user_id][second_word] = {'last_task_id': 0, 'status': 'active'}
+                bot.send_message(user_id, 'Активирован поиск по ключевому слову')
+
             else:
-                options[user_id] = {'status': 'pending', 'history': {}}
+                options[user_id][second_word]['status'] = 'active'
+                bot.send_message(user_id, 'Активирован поиск по ключевому слову')
 
-            bot.send_message(user_id, 'Введите ключевое слово')
-            tools.js_write(options)
+        # ------------------------ STOP COMMANDS ------------------------
+        elif first_word == 'stop':
+            if message.text == 'stop':
+                if not options.get(user_id):
+                    bot.send_message(user_id, 'История пустая, нечего останавливать')
+                else:
+                    for keyword in options[user_id]:
+                        options[user_id][keyword]['status'] = 'passive'
+                    bot.send_message(user_id, 'Поиск остановлен')
 
-        elif options.get(user_id) and options[user_id]['status'] == 'pending':
-            options[user_id]['current_keyword'] = message.text
-            options[user_id]['status'] = 'ready'
-            tools.js_write(options)
-            monitoring.parse_for_current_settings(options)  # для оперативного получения инфромации при первом вызове
+            elif not options.get(user_id):
+                bot.send_message(user_id, 'Настройки пользователя остутствуют')
+
+            elif options.get(user_id) and second_word not in options[user_id].keys():
+                bot.send_message(user_id, 'Ключевого слова нет в истории')
+
+            else:
+                options[user_id][second_word]['status'] = 'passive'
+                bot.send_message(user_id, 'Поиск по ключевому слову остановлен')
 
         # ------------------------ GET COMMAND ------------------------
         elif message.text == 'get' and options.get(user_id):
@@ -51,49 +83,41 @@ def run_bot():  # запускает обработчик сообщений
         elif message.text == 'get_all':
             bot.send_message(user_id, f"`{options}`", parse_mode='Markdown')
 
-        # ------------------------ START COMMAND ------------------------
-        elif message.text == 'start' and not options.get(user_id):
-            bot.send_message(user_id, 'Настройки для бота отсутствуют')
+        # ------------------------ REMOVE COMMAND ------------------------
+        elif first_word == 'remove':
 
-        elif message.text == 'start' and options.get(user_id) and options[user_id]['status'] == 'ready':
-            bot.send_message(user_id, 'Бот уже работает')
+            if message.text == 'remove':
+                bot.send_message(user_id, 'Корректная команда: "remove keyword"')
 
-        elif message.text == 'start' and options.get(user_id) and options[user_id]['status'] == 'stopped':
-            options[user_id]['status'] = 'ready'
-            bot.send_message(user_id, 'Работа бота возобновлена')
-            tools.js_write(options)
+            elif not options.get(user_id):
+                bot.send_message(user_id, 'Настройки пользователя отсутствуют')
 
-        # ------------------------ STOP COMMAND ------------------------
-        elif message.text == 'stop' and not options.get(user_id):
-            bot.send_message(user_id, 'Бот не запущен')
+            elif options.get(user_id) and second_word not in options[user_id].keys():
+                bot.send_message(user_id, 'Ключевого слова нет в настройках')
 
-        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'ready':
-            options[user_id]['status'] = 'stopped'
-            bot.send_message(user_id, 'Бот остановлен')
-            tools.js_write(options)
-        
-        elif message.text == 'stop' and options.get(user_id) and options[user_id]['status'] == 'stopped':
-            bot.send_message(user_id, 'Бот уже остановлен')
+            else:
+                options[user_id].pop(second_word)
+                bot.send_message(user_id, f'Ключевое слово "{second_word}" удалено из настроек')
 
-            # ------------------------ CLEAR COMMAND ------------------------
+        # ------------------------ CLEAR COMMAND ------------------------
         elif message.text == 'clear' and not options.get(user_id):
-            bot.send_message(user_id, 'История отсутствует')
+            bot.send_message(user_id, 'Настройки пользователя отстутствуют')
 
-        elif message.text == 'clear' and options.get(user_id) and options[user_id]['status'] != 'pending':
+        elif message.text == 'clear':
             options.pop(user_id)
-            tools.js_write(options)
-            bot.send_message(user_id, 'История удалена')
+            bot.send_message(user_id, 'Настройки пользователя удалены')
 
         # ------------------------ OTHER COMMANDS ------------------------
-        elif message.text == 'help':
-            bot.send_message(user_id, 'Команды:\n"parse" - активация бота'
-                                      '\n"stop" - остановка бота\n"start" - возобновление работы бота'
-                                      '\n"get" - показать настройки пользователя\n"get_all" - показать все настройки'
-                                      '\n"clear" - очистить историю')
-
         else:
-            bot.send_message(user_id, 'Неверная команда, используйте "help" для просмотра списка команд')
+            bot.send_message(user_id, 'Команды:\n"start *keyword*" - начать поиск по ключевому слову'
+                                      '\n"start" - начать поиск по всем ключевым словам из истории'
+                                      '\n"stop *keyword*" - остановить поиск по ключевому слову'
+                                      '\n"stop - остановить поиск по всем ключевым словам из истории'
+                                      '\n"get" - показать настройки пользователя\n"get_all" - показать все настройки'
+                                      '\n"remove *keyword*" - удалить ключевое слово из истории'
+                                      '\n"clear" - очистить историю пользователя')
 
+        tools.js_write(options)
         pprint(options)
 
     bot.polling(none_stop=False)
