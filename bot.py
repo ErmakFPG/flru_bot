@@ -6,9 +6,7 @@ from pprint import pprint
 import time
 from telebot import apihelper
 
-
 apihelper.proxy = {'https': 'socks5h://733764577:lQZjuqmu@orbtl.s5.opennetwork.cc:999'}
-
 
 bot = telebot.TeleBot(config.TOKEN)
 
@@ -124,9 +122,13 @@ def run_bot():  # запускает обработчик сообщений
     bot.polling(none_stop=False)
 
 
-def send_tasks(user_id, tasks):  # отправляет результат парсинга
-    for task in tasks[0:3]:  # для удобства тестирования отправляет 3 сообщения [0:3]
-        bot.send_message(user_id, f"{task['title']} {task['link']} {task['price']['count']} "
-                                  f"{task['price']['currency']}")
+def send_tasks(user_id, tasks, keyword):  # отправляет результат парсинга
+    for task in tasks[0:3]:
+        keyboard = telebot.types.InlineKeyboardMarkup()
+        link_button = telebot.types.InlineKeyboardButton(text="Подробнее", url=task['link'])
+        keyboard.add(link_button)
+        bot.send_message(user_id, f"{keyword}\n"
+                                  f"{task['title']} {task['price']['count']} "
+                                  f"{task['price']['currency']}", reply_markup=keyboard)
 
         time.sleep(1)
