@@ -19,10 +19,11 @@ def parse_for_current_settings(options):
                     if task['id'] > new_last_task_id:
                         new_last_task_id = task['id']
 
-                bot.send_tasks(user_id, tasks_for_send)
-                options = tools.js_read()
-                options[user_id][keyword]['last_task_id'] = new_last_task_id
-                tools.js_write(options)
+                bot.send_tasks(user_id, tasks_for_send, keyword)
+
+                options_new = tools.js_read()
+                options_new[user_id][keyword]['last_task_id'] = new_last_task_id
+                tools.js_write(options_new)
 
 
 def start_monitoring():
@@ -33,4 +34,4 @@ def start_monitoring():
         except FileNotFoundError:
             pass
 
-        time.sleep(10)
+        time.sleep(600)
