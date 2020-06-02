@@ -28,6 +28,7 @@ def post_html(url, session, find, token):
         'location_column_id': '0',
         'location_db_id': '0',
         'location': '%D0%92%D1%81%D0%B5+%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%8B',
+        'pf_pro_only': '1',
         'pf_cost_from': '',
         'pf_cost_to': '',
         'pf_keywords': find,
@@ -87,6 +88,7 @@ def get_content(html):
 
 def parse(find):
     s = requests.Session()
+
     post_html(URL, s, find, get_token(URL, s))
     tasks = []
     pages_count = get_pages_count()
