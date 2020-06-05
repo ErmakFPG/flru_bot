@@ -40,9 +40,5 @@ def parse_for_current_settings():
 
 def start_monitoring():
     while True:
-        try:
-            parse_for_current_settings()
-        except FileNotFoundError:
-            pass
-
+        parse_for_current_settings()
         time.sleep(600)

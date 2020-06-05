@@ -17,11 +17,7 @@ def run_bot():  # запускает обработчик сообщений
     @bot.message_handler(content_types=['text'])
     def dialog(message):
 
-        try:
-            options = tools.js_read()
-        except FileNotFoundError:
-            options = {}
-
+        options = tools.js_read()
         user_id = str(message.from_user.id)
         command = message.text.split()[0]
 
