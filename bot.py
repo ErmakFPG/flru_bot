@@ -26,7 +26,7 @@ def run_bot():  # запускает обработчик сообщений
         command = message.text.split()[0]
 
         try:
-            args = message.text.split()[1]
+            args = ''.join(message.text.split()[1:])
         except IndexError:
             args = ''
 
@@ -61,7 +61,7 @@ def execute_start(user_id, options, args, message):
                 options[user_id]['keywords'][keyword]['status'] = 'active'
             bot.send_message(user_id, 'Активирован поиск по ключевым словам из истории')
             tools.js_write(options)
-            monitoring.parse_for_current_settings(options)
+            monitoring.parse_for_current_settings()
 
     elif not options.get(user_id):
         options[user_id] = {'keywords': {args: {'last_task_id': 0,
@@ -69,19 +69,19 @@ def execute_start(user_id, options, args, message):
                             'time': None}
         bot.send_message(user_id, f'Активирован поиск по ключевому слову "{args}"')
         tools.js_write(options)
-        monitoring.parse_for_current_settings(options)
+        monitoring.parse_for_current_settings()
 
     elif args not in options[user_id]['keywords'].keys():
         options[user_id]['keywords'][args] = {'last_task_id': 0, 'status': 'active'}
         bot.send_message(user_id, f'Активирован поиск по ключевому слову "{args}"')
         tools.js_write(options)
-        monitoring.parse_for_current_settings(options)
+        monitoring.parse_for_current_settings()
 
     else:
         options[user_id]['keywords'][args]['status'] = 'active'
         bot.send_message(user_id, f'Активирован поиск по ключевому слову "{args}"')
         tools.js_write(options)
-        monitoring.parse_for_current_settings(options)
+        monitoring.parse_for_current_settings()
 
 
 def execute_stop(user_id, options, args, message):
@@ -148,7 +148,9 @@ def execute_time(user_id, options, args):
             else:
                 bot.send_message(user_id, 'Введено некорректное время')
 
-        except ValueError and IndexError:
+        except ValueError:
+            bot.send_message(user_id, 'Введено некорректное время')
+        except IndexError:
             bot.send_message(user_id, 'Введено некорректное время')
 
     else:
