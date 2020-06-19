@@ -6,9 +6,6 @@ from pprint import pprint
 import time
 from telebot import apihelper
 import datetime
-import logging
-
-logging.basicConfig(filename='app.log', format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 apihelper.proxy = {'https': 'socks5h://733764577:lQZjuqmu@orbtl.s5.opennetwork.cc:999'}
 
@@ -24,36 +21,31 @@ def run_bot():  # запускает обработчик сообщений
         command = message.text.split()[0]
 
         try:
+            args = ' '.join(message.text.split()[1:])
+        except IndexError:
+            args = ''
 
-            try:
-                args = ''.join(message.text.split()[1:])
-            except IndexError:
-                args = ''
+        if command == 'start':
+            execute_start(user_id, options, args, message)
+        elif command == 'stop':
+            execute_stop(user_id, options, args, message)
+        elif message.text == 'get':
+            execute_get(user_id, options)
+        elif message.text == 'get_all':
+            bot.send_message(user_id, f"`{options}`", parse_mode='Markdown')
+        elif command == 'remove':
+            execute_remove(user_id, options, args)
+        elif message.text == 'clear':
+            execute_clear(user_id, options)
+        elif command == 'time':
+            execute_time(user_id, options, args)
+        else:
+            execute_help(user_id)
 
-            if command == 'start':
-                execute_start(user_id, options, args, message)
-            elif command == 'stop':
-                execute_stop(user_id, options, args, message)
-            elif message.text == 'get':
-                execute_get(user_id, options)
-            elif message.text == 'get_all':
-                bot.send_message(user_id, f"`{options}`", parse_mode='Markdown')
-            elif command == 'remove':
-                execute_remove(user_id, options, args)
-            elif message.text == 'clear':
-                execute_clear(user_id, options)
-            elif command == 'time':
-                execute_time(user_id, options, args)
-            else:
-                execute_help(user_id)
-
-            if options.get(user_id):
-                pprint(options[user_id])
-            else:
-                pprint({})
-        except Exception:
-            logging.exception(f'Ахтунг, ошибка!')
-            bot.send_message(user_id, 'Ахтунг, ошибка!')
+        if options.get(user_id):
+            pprint(options[user_id])
+        else:
+            pprint({})
 
     bot.polling(none_stop=True)
 
