@@ -4,12 +4,19 @@ import config
 import tools
 from pprint import pprint
 import time
-from telebot import apihelper
 import datetime
 
-apihelper.proxy = {'https': 'socks5h://733764577:lQZjuqmu@orbtl.s5.opennetwork.cc:999'}
 
 bot = telebot.TeleBot(config.TOKEN)
+
+
+def parse_command(message):
+    split_message = message.split()
+    if len(split_message) == 1:
+        args = ''
+    else:
+        args = ' '.join(split_message[1:])
+    return split_message[0], args
 
 
 def run_bot():  # запускает обработчик сообщений
@@ -18,12 +25,8 @@ def run_bot():  # запускает обработчик сообщений
     def dialog(message):
         options = tools.js_read()
         user_id = str(message.from_user.id)
-        command = message.text.split()[0]
-
-        try:
-            args = ' '.join(message.text.split()[1:])
-        except IndexError:
-            args = ''
+        command = parse_command(message.text)[0]
+        args = parse_command(message.text)[1]
 
         if command == 'start':
             execute_start(user_id, options, args, message)
